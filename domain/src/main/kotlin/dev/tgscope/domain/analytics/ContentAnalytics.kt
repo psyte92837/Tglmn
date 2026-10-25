@@ -85,7 +85,7 @@ class ContentAnalytics(private val db: TgDatabase) {
             val posts = stats.postsIn(chatId, from, to)
             val comments = stats.commentsIn(chatId, from, to)
             val reactionsByPost = stats.postReactionTotals(chatId).associate { it.messageId to it.total }
-            val firstSeen = stats.firstCommentDates(chatId).associate { it.userId to it.first }
+            val firstSeen = stats.firstCommentDates(chatId).associate { it.userId to it.firstDate }
             val firstCommentByPost = stats.firstCommentPerPost(chatId).associate { it.messageId to it.total }
 
             fun er(p: PostEntity): Double {

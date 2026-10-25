@@ -44,7 +44,7 @@ data class CommentLite(
 
 data class IdTotal(val messageId: Long, val total: Int)
 
-data class UserFirst(val userId: Long, val first: Long)
+data class UserFirst(val userId: Long, val firstDate: Long)
 
 @Dao
 interface ChannelDao {
@@ -351,7 +351,7 @@ interface StatsDao {
 
     @Query(
         """
-        SELECT userId, MIN(date) AS first FROM comment
+        SELECT userId, MIN(date) AS firstDate FROM comment
         WHERE postChatId = :channelId AND deleted = 0 AND userId IS NOT NULL GROUP BY userId
         """,
     )
