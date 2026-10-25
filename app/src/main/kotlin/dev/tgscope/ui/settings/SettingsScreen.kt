@@ -45,7 +45,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.tgscope.AppGraph
 import dev.tgscope.core.settings.AppSettings
-import dev.tgscope.domain.llm.Prompts
 import dev.tgscope.ui.Routes
 import dev.tgscope.ui.common.SectionTitle
 import dev.tgscope.watch.WatchService
@@ -119,40 +118,8 @@ fun SettingsScreen(graph: AppGraph, nav: NavController) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            SectionTitle("LLM-анализ")
-            OutlinedTextField(
-                value = draft.llmEndpoint,
-                onValueChange = { draft = draft.copy(llmEndpoint = it) },
-                label = { Text("Endpoint (OpenAI-совместимый), напр. https://api.openai.com/v1") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            OutlinedTextField(
-                value = draft.llmModel,
-                onValueChange = { draft = draft.copy(llmModel = it) },
-                label = { Text("Модель") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            )
-            OutlinedTextField(
-                value = draft.llmApiKey,
-                onValueChange = { draft = draft.copy(llmApiKey = it) },
-                label = { Text("API-ключ (хранится зашифрованным)") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-            )
-            Row(Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Prompts.languages.forEach { lang ->
-                    FilterChip(selected = draft.llmLanguage == lang, onClick = { draft = draft.copy(llmLanguage = lang) }, label = { Text(lang) })
-                }
-            }
-            Text(
-                "Для полной локальности укажите Ollama или LM Studio в своей сети, например http://192.168.1.10:11434/v1. " +
-                    "Перед отправкой авторы заменяются псевдонимами.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            SectionTitle("ИИ-анализ")
+            AiSettings(graph, draft) { draft = it }
 
             Button(onClick = { save(draft) }, modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) { Text("Сохранить") }
 

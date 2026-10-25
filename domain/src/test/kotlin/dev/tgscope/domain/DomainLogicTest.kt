@@ -4,7 +4,14 @@ import dev.tgscope.core.database.DayCount
 import dev.tgscope.domain.export.Anonymizer
 import dev.tgscope.domain.export.Exporter
 import dev.tgscope.domain.export.Exporter.Companion.serverId
+import dev.tgscope.core.database.PostEntity
+import dev.tgscope.domain.analytics.ContentAnalytics
+import dev.tgscope.domain.analytics.TextAnalytics
 import dev.tgscope.domain.llm.LlmAnalyzer
+import dev.tgscope.domain.llm.LlmClient
+import dev.tgscope.domain.llm.LlmProviders
+import dev.tgscope.domain.llm.Prompts
+import org.junit.Assert.assertTrue
 import dev.tgscope.domain.stats.StatsRepository
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -59,5 +66,54 @@ class DomainLogicTest {
     fun endpointUrlNormalization() {
         assertEquals("https://api.openai.com/v1/chat/completions", LlmAnalyzer.endpointUrl("https://api.openai.com/v1/"))
         assertEquals("http://h:1/v1/chat/completions", LlmAnalyzer.endpointUrl("http://h:1/v1/chat/completions"))
+    }
+
+    @Test
+    fun textAnalyticsExtractsEntities() {
+        val text = "Новый #релиз и #Android! Пишите @tgscope_bot, подробности на https://www.example.com/x и t.me/channel"
+        assertEquals(listOf("#релиз", "#android"), TextAnalytics.hashtags(text))
+        assertEquals(listOf("@tgscope_bot"), TextAnalytics.mentions(text))
+        assertTrue("example.com" in TextAnalytics.domains(text))
+        assertTrue("t.me" in TextAnalytics.domains(text))
+        assertTrue(TextAnalytics.words("и в на это очень Telegram каналы").containsAll(listOf("telegram", "каналы")))
+        assertTrue("это" !in TextAnalytics.words("это"))
+    }
+
+    @Test
+    fun seoScoreRewardsGoodPosts() {
+        fun post(text: String) = PostEntity(
+            chatId = 1, messageId = 1, date = 0, editDate = 0, text = text, views = 100, forwards = 0,
+            replyCount = 0, mediaType = null, mediaFileId = null, link = "", updatedAt = 0,
+        )
+        val good = post("Как выбрать Android смартфон в 2026\n\nРазбираем главное. Подробнее: https://example.com #android #гайд\nА вы что думаете?")
+        val bad = post("ок")
+        val goodScore = ContentAnalytics.seoScore(good, setOf("android")).score
+        val badScore = ContentAnalytics.seoScore(bad, setOf("android"))
+        assertTrue("good=$goodScore", goodScore >= 80)
+        assertTrue(badScore.score < 40)
+        assertTrue(badScore.tips.isNotEmpty())
+    }
+
+    @Test
+    fun llmBaseUrlStripsKnownSuffixes() {
+        assertEquals("https://api.anthropic.com/v1", LlmClient.base("https://api.anthropic.com/v1/messages"))
+        assertEquals("https://x/v1", LlmClient.base(" https://x/v1/ "))
+    }
+
+    @Test
+    fun providerCatalogIsConsistent() {
+        assertEquals(LlmProviders.all.size, LlmProviders.all.map { it.id }.toSet().size)
+        LlmProviders.all.filter { it.needsKey }.forEach { assertTrue(it.id, it.keyUrl?.startsWith("https://") == true) }
+        assertEquals("custom", LlmProviders.byId("nope").id)
+    }
+
+    @Test
+    fun promptCatalogHasTasksInBothLanguages() {
+        assertEquals(Prompts.kinds.size, Prompts.kinds.map { it.id }.toSet().size)
+        Prompts.kinds.forEach {
+            assertTrue(it.id, it.taskRu.isNotBlank() && it.taskEn.isNotBlank())
+            assertTrue(it.id, it.category in Prompts.categories)
+        }
+        assertTrue(Prompts.system(Prompts.CUSTOM, "ru", "найди цены").endsWith("найди цены"))
     }
 }

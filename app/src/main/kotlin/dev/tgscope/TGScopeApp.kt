@@ -8,6 +8,7 @@ import dev.tgscope.core.database.TgDatabase
 import dev.tgscope.core.settings.SettingsRepository
 import dev.tgscope.core.tdlib.ApiCredentials
 import dev.tgscope.core.tdlib.TelegramClient
+import dev.tgscope.domain.analytics.ContentAnalytics
 import dev.tgscope.domain.export.Exporter
 import dev.tgscope.domain.llm.LlmAnalyzer
 import dev.tgscope.domain.stats.StatsRepository
@@ -64,6 +65,7 @@ class AppGraph(val app: Application) {
     val exporter = Exporter(db, settings)
     val analyzer = LlmAnalyzer(db, settings)
     val stats = StatsRepository(db)
+    val content = ContentAnalytics(db)
     val scheduler = SyncScheduler(app)
 
     fun startTelegram() {

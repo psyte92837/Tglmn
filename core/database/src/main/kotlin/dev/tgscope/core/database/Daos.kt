@@ -32,6 +32,20 @@ data class UserCount(
 
 data class EmojiCount(val emoji: String, val total: Int)
 
+/** Lightweight comment projection for in-memory analytics. */
+data class CommentLite(
+    val messageId: Long,
+    val postId: Long,
+    val date: Long,
+    val userId: Long?,
+    val replyToMessageId: Long?,
+    val text: String,
+)
+
+data class IdTotal(val messageId: Long, val total: Int)
+
+data class UserFirst(val userId: Long, val first: Long)
+
 @Dao
 interface ChannelDao {
     @Query("SELECT * FROM channel ORDER BY addedAt")
@@ -315,7 +329,44 @@ interface StatsDao {
 
     @Query("SELECT COALESCE(SUM(views), 0) FROM post WHERE chatId = :channelId AND deleted = 0 AND date >= :from AND date < :to")
     suspend fun viewCount(channelId: Long, from: Long, to: Long): Long
+
+    @Query("SELECT * FROM post WHERE chatId = :channelId AND deleted = 0 AND date >= :from AND date < :to ORDER BY date")
+    suspend fun postsIn(channelId: Long, from: Long, to: Long): List<PostEntity>
+
+    @Query(
+        """
+        SELECT messageId, postId, date, userId, replyToMessageId, text FROM comment
+        WHERE postChatId = :channelId AND deleted = 0 AND date >= :from AND date < :to
+        """,
+    )
+    suspend fun commentsIn(channelId: Long, from: Long, to: Long): List<CommentLite>
+
+    @Query(
+        """
+        SELECT messageId, SUM(count) AS total FROM reaction
+        WHERE ownerType = 0 AND chatId = :channelId GROUP BY messageId
+        """,
+    )
+    suspend fun postReactionTotals(channelId: Long): List<IdTotal>
+
+    @Query(
+        """
+        SELECT userId, MIN(date) AS first FROM comment
+        WHERE postChatId = :channelId AND deleted = 0 AND userId IS NOT NULL GROUP BY userId
+        """,
+    )
+    suspend fun firstCommentDates(channelId: Long): List<UserFirst>
+
+    @Query(
+        """
+        SELECT postId AS messageId, MIN(date) AS total FROM comment
+        WHERE postChatId = :channelId AND deleted = 0 GROUP BY postId
+        """,
+    )
+    suspend fun firstCommentPerPost(channelId: Long): List<IdTotalLong>
 }
+
+data class IdTotalLong(val messageId: Long, val total: Long)
 
 @Dao
 interface SyncRunDao {

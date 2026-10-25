@@ -38,6 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import dev.tgscope.AppGraph
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import dev.tgscope.domain.analytics.ContentReport
 import dev.tgscope.domain.stats.ChannelStats
 import dev.tgscope.domain.stats.Comparison
 import dev.tgscope.domain.stats.PeriodSummary
@@ -54,6 +57,7 @@ import dev.tgscope.ui.common.formatDateUnix
 import dev.tgscope.ui.common.reactionLabel
 
 private val periods = listOf(7, 30, 90, 365)
+private val statTabs = listOf("Обзор", "Активность", "Контент", "SEO и ключи", "Аудитория")
 
 @Composable
 fun StatsScreen(graph: AppGraph, nav: NavController, initialChatId: Long) {
@@ -61,11 +65,18 @@ fun StatsScreen(graph: AppGraph, nav: NavController, initialChatId: Long) {
     var selected by rememberSaveable { mutableStateOf(initialChatId) }
     var days by rememberSaveable { mutableStateOf(30) }
     var picker by remember { mutableStateOf(false) }
+    var tab by rememberSaveable { mutableStateOf(0) }
 
     val chatId = if (selected != 0L) selected else channels.firstOrNull()?.chatId ?: 0L
     val stats by produceState<ChannelStats?>(null, chatId, days) {
         value = null
         if (chatId != 0L) value = graph.stats.channelStats(chatId, StatsRepository.daysAgo(days), StatsRepository.tomorrow())
+    }
+    val report by produceState<ContentReport?>(null, chatId, days, tab != 0) {
+        value = null
+        if (chatId != 0L && tab != 0) {
+            value = graph.content.report(chatId, StatsRepository.daysAgo(days), StatsRepository.tomorrow())
+        }
     }
 
     Scaffold(topBar = { TopAppBar(title = { Text("Статистика") }) }) { padding ->
@@ -90,9 +101,29 @@ fun StatsScreen(graph: AppGraph, nav: NavController, initialChatId: Long) {
                         FilterChip(selected = days == d, onClick = { days = d }, label = { Text("$d дн.") })
                     }
                 }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                ) {
+                    statTabs.forEachIndexed { i, label ->
+                        FilterChip(selected = tab == i, onClick = { tab = i }, label = { Text(label) })
+                    }
+                }
             }
             val s = stats
-            if (s == null) {
+            val r = report
+            if (tab != 0) {
+                if (r == null) {
+                    item { Box(Modifier.fillMaxWidth().padding(32.dp)) { Loading() } }
+                } else {
+                    when (tab) {
+                        1 -> activityTab(r)
+                        2 -> contentTab(r) { nav.navigate(Routes.post(it.chatId, it.messageId)) }
+                        3 -> seoTab(r) { nav.navigate(Routes.post(it.chatId, it.messageId)) }
+                        else -> audienceTab(r)
+                    }
+                }
+            } else if (s == null) {
                 item { Box(Modifier.fillMaxWidth().padding(32.dp)) { Loading() } }
             } else {
                 item { ComparisonBlock(s.comparison, days) }

@@ -3,6 +3,9 @@
 package dev.tgscope.ui.analysis
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -64,16 +67,16 @@ class AnalysisViewModel(private val graph: AppGraph, private val chatId: Long, p
         _selected.value = id
     }
 
-    fun run(prompt: String, days: Int) {
+    fun run(prompt: String, days: Int, custom: String?) {
         if (_running.value) return
         _running.value = true
         _error.value = null
         viewModelScope.launch {
             runCatching {
                 if (postId != 0L) {
-                    graph.analyzer.analyzePost(chatId, postId, prompt)
+                    graph.analyzer.analyzePost(chatId, postId, prompt, custom)
                 } else {
-                    graph.analyzer.analyzeChannel(chatId, StatsRepository.daysAgo(days), StatsRepository.tomorrow(), prompt)
+                    graph.analyzer.analyzeChannel(chatId, StatsRepository.daysAgo(days), StatsRepository.tomorrow(), prompt, custom)
                 }
             }.onSuccess { _selected.value = it.id }
                 .onFailure { _error.value = it.message ?: it::class.simpleName }
@@ -92,7 +95,9 @@ fun AnalysisScreen(graph: AppGraph, nav: NavController, chatId: Long, postId: Lo
     val settings by graph.settings.settings.collectAsStateWithLifecycle(null)
     val history = all.filter { it.postId == postId }
 
-    var prompt by rememberSaveable { mutableStateOf(Prompts.names.first()) }
+    var prompt by rememberSaveable { mutableStateOf(Prompts.kinds.first().id) }
+    var custom by rememberSaveable { mutableStateOf("") }
+    val kinds = remember(postId) { Prompts.forScope(isChannel = postId == 0L) }
     var days by rememberSaveable { mutableStateOf(7) }
     val language = settings?.llmLanguage ?: "ru"
     val shown = history.firstOrNull { it.id == selectedId } ?: history.firstOrNull()
@@ -111,25 +116,42 @@ fun AnalysisScreen(graph: AppGraph, nav: NavController, chatId: Long, postId: Lo
             item {
                 if (settings?.hasLlm == false) {
                     Text(
-                        "Сначала укажите endpoint и модель в Настройках → LLM-анализ.",
+                        "Сначала выберите ИИ-провайдера, ключ и модель в Настройках → ИИ-анализ.",
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Prompts.names.forEach { name ->
-                        FilterChip(selected = prompt == name, onClick = { prompt = name }, label = { Text(Prompts.title(name, language)) })
+                Prompts.categories.forEach { category ->
+                    val inCategory = kinds.filter { it.category == category }
+                    if (inCategory.isNotEmpty()) {
+                        Text(category, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
+                        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            inCategory.forEach { k ->
+                                FilterChip(selected = prompt == k.id, onClick = { prompt = k.id }, label = { Text(Prompts.title(k.id, language)) })
+                            }
+                        }
                     }
+                }
+                Text("Свой вариант", style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(top = 8.dp))
+                FilterChip(selected = prompt == Prompts.CUSTOM, onClick = { prompt = Prompts.CUSTOM }, label = { Text("Свой запрос") })
+                if (prompt == Prompts.CUSTOM) {
+                    OutlinedTextField(
+                        value = custom,
+                        onValueChange = { custom = it },
+                        label = { Text("Что проанализировать? Например: найди упоминания цен и отношение к ним") },
+                        minLines = 3,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                 }
                 if (postId == 0L) {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf(1, 7, 30).forEach { d ->
+                        listOf(1, 7, 30, 90).forEach { d ->
                             FilterChip(selected = days == d, onClick = { days = d }, label = { Text("$d дн.") })
                         }
                     }
                 }
                 Button(
-                    onClick = { vm.run(prompt, days) },
-                    enabled = !running && settings?.hasLlm == true,
+                    onClick = { vm.run(prompt, days, custom.takeIf { prompt == Prompts.CUSTOM }) },
+                    enabled = !running && settings?.hasLlm == true && (prompt != Prompts.CUSTOM || custom.isNotBlank()),
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 ) { Text(if (running) "Анализируем…" else "Запустить анализ") }
                 if (running) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp))

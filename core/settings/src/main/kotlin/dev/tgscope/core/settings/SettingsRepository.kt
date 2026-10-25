@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -31,16 +32,22 @@ data class AppSettings(
     val downloadMedia: Boolean = false,
     val anonymizeExport: Boolean = false,
     val watchEnabled: Boolean = false,
-    /** OpenAI-compatible base URL, e.g. https://api.openai.com/v1 or http://192.168.1.5:11434/v1 */
+    /** Provider id from the domain catalog (openai, anthropic, gemini, ...). */
+    val llmProvider: String = "openai",
+    /** Base URL, e.g. https://api.openai.com/v1 or http://192.168.1.5:11434/v1 */
     val llmEndpoint: String = "",
     val llmModel: String = "",
-    val llmApiKey: String = "",
+    /** API keys per provider, so switching providers keeps them. Stored encrypted. */
+    val llmApiKeys: Map<String, String> = emptyMap(),
     val llmLanguage: String = "ru",
+    val llmMaxTokens: Int = 2048,
+    val llmTemperature: Float = 0.3f,
     /** Salt for stable anonymous aliases; generated once per install. */
     val anonymizerSalt: String = "",
 ) {
     val hasApiCredentials: Boolean get() = apiId != null && apiId > 0 && !apiHash.isNullOrBlank()
     val hasLlm: Boolean get() = llmEndpoint.isNotBlank() && llmModel.isNotBlank()
+    val llmApiKey: String get() = llmApiKeys[llmProvider].orEmpty()
 }
 
 class SettingsRepository(private val context: Context) {
@@ -58,8 +65,11 @@ class SettingsRepository(private val context: Context) {
         val watch = booleanPreferencesKey("watch_enabled")
         val llmEndpoint = stringPreferencesKey("llm_endpoint")
         val llmModel = stringPreferencesKey("llm_model")
-        val llmApiKey = stringPreferencesKey("llm_api_key_enc")
+        val llmProvider = stringPreferencesKey("llm_provider")
         val llmLanguage = stringPreferencesKey("llm_language")
+        val llmMaxTokens = intPreferencesKey("llm_max_tokens")
+        val llmTemperature = floatPreferencesKey("llm_temperature")
+        const val KEY_PREFIX = "llm_key_"
         val salt = stringPreferencesKey("anonymizer_salt")
     }
 
@@ -103,10 +113,12 @@ class SettingsRepository(private val context: Context) {
             prefs[Keys.llmEndpoint] = updated.llmEndpoint.trim()
             prefs[Keys.llmModel] = updated.llmModel.trim()
             prefs[Keys.llmLanguage] = updated.llmLanguage
-            if (updated.llmApiKey.isEmpty()) {
-                prefs.remove(Keys.llmApiKey)
-            } else {
-                prefs[Keys.llmApiKey] = KeystoreCipher.encrypt(updated.llmApiKey.toByteArray())
+            prefs[Keys.llmProvider] = updated.llmProvider
+            prefs[Keys.llmMaxTokens] = updated.llmMaxTokens.coerceIn(256, 32_000)
+            prefs[Keys.llmTemperature] = updated.llmTemperature.coerceIn(0f, 2f)
+            prefs.asMap().keys.filter { it.name.startsWith(Keys.KEY_PREFIX) }.forEach { prefs.remove(it) }
+            updated.llmApiKeys.filterValues { it.isNotBlank() }.forEach { (provider, key) ->
+                prefs[stringPreferencesKey(Keys.KEY_PREFIX + provider)] = KeystoreCipher.encrypt(key.trim().toByteArray())
             }
         }
     }
@@ -131,8 +143,17 @@ class SettingsRepository(private val context: Context) {
             watchEnabled = this[Keys.watch] ?: defaults.watchEnabled,
             llmEndpoint = this[Keys.llmEndpoint] ?: defaults.llmEndpoint,
             llmModel = this[Keys.llmModel] ?: defaults.llmModel,
-            llmApiKey = this[Keys.llmApiKey]?.let { KeystoreCipher.decrypt(it)?.decodeToString() } ?: "",
+            llmProvider = this[Keys.llmProvider] ?: defaults.llmProvider,
+            llmApiKeys = asMap().entries
+                .filter { it.key.name.startsWith(Keys.KEY_PREFIX) }
+                .mapNotNull { (key, value) ->
+                    val plain = (value as? String)?.let { KeystoreCipher.decrypt(it)?.decodeToString() }
+                    plain?.let { key.name.removePrefix(Keys.KEY_PREFIX) to it }
+                }
+                .toMap(),
             llmLanguage = this[Keys.llmLanguage] ?: defaults.llmLanguage,
+            llmMaxTokens = this[Keys.llmMaxTokens] ?: defaults.llmMaxTokens,
+            llmTemperature = this[Keys.llmTemperature] ?: defaults.llmTemperature,
             anonymizerSalt = this[Keys.salt] ?: "",
         )
     }
