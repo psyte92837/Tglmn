@@ -10,6 +10,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,25 +29,40 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Build debug APKs and run unit tests
-        run: ./gradlew --no-configuration-cache assembleDebug testDebugUnitTest --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew --no-configuration-cache --continue assembleDebug testDebugUnitTest 2>&1 | tee build.log
+
+      - name: Report compiler errors
+        if: failure()
+        run: |
+          grep -E '^e: |error:|FAILURE|What went wrong|Could not|> ' build.log | head -n 200 > errors.txt || true
+          head -n 10 errors.txt | while IFS= read -r line; do echo "::error::${line//%/%25}"; done
+
+      # Public CI logs need auth to download, so failed builds publish their log to the
+      # `ci-logs` branch where it can be read with plain git.
+      - name: Publish build log
+        if: failure() && github.event_name == 'push'
+        run: |
+          mkdir -p /tmp/ci && cp build.log errors.txt /tmp/ci/ 2>/dev/null || true
+          cd /tmp/ci
+          git init -q -b ci-logs
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          echo "${GITHUB_SHA}" > sha.txt
+          git add -A && git commit -q -m "CI log for ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" ci-logs
 
       - name: Upload APKs
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: tgscope-debug-apks
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
-      - name: Upload test reports
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: '**/build/reports/tests/'
-          if-no-files-found: ignore
-
       - name: Attach APKs to release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: success() && startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: app/build/outputs/apk/debug/*.apk
