@@ -22,7 +22,7 @@ class WatchCoordinator(
     private val engine: SyncEngine,
 ) {
     /** Runs until cancelled. [debounceMs] groups bursts of updates into one sync per channel. */
-    suspend fun run(debounceMs: Long = 30_000, activePosts: Int = 20) = coroutineScope {
+    suspend fun run(debounceMs: Long = 30_000, activePosts: Int = 20): Unit = coroutineScope {
         val channels = db.channels().getAll()
         val byChannel = channels.associateBy { it.chatId }
         val byDiscussion = channels.filter { it.discussionChatId != 0L }.associateBy { it.discussionChatId }
