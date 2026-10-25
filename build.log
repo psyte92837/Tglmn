@@ -1,0 +1,205 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+> Task :core:database:preBuild UP-TO-DATE
+> Task :domain:preBuild UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :domain:preDebugBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :core:settings:preBuild UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:settings:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :core:settings:processDebugNavigationResources FROM-CACHE
+> Task :app:generateDebugResources FROM-CACHE
+> Task :core:tdlib:preBuild UP-TO-DATE
+> Task :core:database:processDebugNavigationResources FROM-CACHE
+> Task :domain:processDebugNavigationResources FROM-CACHE
+> Task :core:tdlib:preDebugBuild UP-TO-DATE
+> Task :core:tdlib:processDebugNavigationResources FROM-CACHE
+> Task :core:database:generateDebugResources FROM-CACHE
+> Task :app:packageDebugResources FROM-CACHE
+> Task :domain:generateDebugResources FROM-CACHE
+> Task :core:settings:generateDebugResources FROM-CACHE
+> Task :core:database:packageDebugResources FROM-CACHE
+> Task :domain:packageDebugResources FROM-CACHE
+> Task :core:settings:packageDebugResources FROM-CACHE
+> Task :app:processDebugNavigationResources FROM-CACHE
+> Task :domain:parseDebugLocalResources FROM-CACHE
+> Task :core:database:parseDebugLocalResources FROM-CACHE
+> Task :core:settings:parseDebugLocalResources FROM-CACHE
+> Task :domain:generateDebugRFile FROM-CACHE
+> Task :core:settings:generateDebugRFile FROM-CACHE
+> Task :core:tdlib:generateDebugResources FROM-CACHE
+> Task :core:database:generateDebugRFile FROM-CACHE
+> Task :core:tdlib:packageDebugResources FROM-CACHE
+> Task :core:tdlib:parseDebugLocalResources FROM-CACHE
+> Task :core:tdlib:generateDebugRFile FROM-CACHE
+> Task :app:parseDebugLocalResources FROM-CACHE
+> Task :app:generateDebugRFile FROM-CACHE
+> Task :domain:javaPreCompileDebug FROM-CACHE
+> Task :app:javaPreCompileDebug FROM-CACHE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :domain:generateDebugAssets UP-TO-DATE
+> Task :core:tdlib:compileDebugKotlin FROM-CACHE
+> Task :core:tdlib:javaPreCompileDebug FROM-CACHE
+> Task :core:tdlib:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:tdlib:bundleLibCompileToJarDebug
+> Task :domain:mergeDebugAssets
+> Task :core:tdlib:generateDebugAssets UP-TO-DATE
+> Task :core:database:javaPreCompileDebug FROM-CACHE
+> Task :core:database:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:tdlib:mergeDebugAssets
+> Task :core:database:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :app:generateDebugGlobalSynthetics FROM-CACHE
+> Task :core:database:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :core:database:generateDebugAssets UP-TO-DATE
+> Task :core:database:mergeDebugAssets
+> Task :core:tdlib:processDebugJavaRes
+> Task :core:tdlib:bundleLibRuntimeToDirDebug
+> Task :domain:writeDebugAarMetadata
+> Task :core:database:writeDebugAarMetadata
+> Task :core:tdlib:writeDebugAarMetadata
+> Task :domain:extractDeepLinksDebug FROM-CACHE
+> Task :domain:processDebugManifest FROM-CACHE
+> Task :core:database:extractDeepLinksDebug FROM-CACHE
+> Task :core:database:processDebugManifest FROM-CACHE
+> Task :core:tdlib:extractDeepLinksDebug FROM-CACHE
+> Task :core:tdlib:processDebugManifest FROM-CACHE
+> Task :domain:mapDebugSourceSetPaths
+> Task :domain:compileDebugLibraryResources FROM-CACHE
+> Task :core:database:mapDebugSourceSetPaths
+> Task :core:database:compileDebugLibraryResources FROM-CACHE
+> Task :core:tdlib:mapDebugSourceSetPaths
+> Task :core:tdlib:compileDebugLibraryResources FROM-CACHE
+> Task :domain:mergeDebugJniLibFolders
+> Task :core:settings:javaPreCompileDebug FROM-CACHE
+> Task :core:settings:generateDebugAssets UP-TO-DATE
+> Task :core:settings:mergeDebugAssets
+> Task :core:settings:writeDebugAarMetadata
+> Task :core:settings:extractDeepLinksDebug FROM-CACHE
+> Task :core:settings:processDebugManifest FROM-CACHE
+> Task :core:settings:mapDebugSourceSetPaths
+> Task :core:settings:compileDebugLibraryResources FROM-CACHE
+> Task :domain:mergeDebugNativeLibs NO-SOURCE
+> Task :domain:copyDebugJniLibsProjectOnly
+> Task :app:checkDebugDuplicateClasses
+> Task :core:database:mergeDebugJniLibFolders
+> Task :core:database:mergeDebugNativeLibs NO-SOURCE
+> Task :core:database:copyDebugJniLibsProjectOnly
+> Task :core:settings:mergeDebugJniLibFolders
+> Task :core:settings:mergeDebugNativeLibs NO-SOURCE
+> Task :core:settings:copyDebugJniLibsProjectOnly
+> Task :core:tdlib:mergeDebugJniLibFolders
+> Task :core:tdlib:mergeDebugNativeLibs NO-SOURCE
+> Task :core:tdlib:copyDebugJniLibsProjectOnly
+> Task :domain:checkDebugAarMetadata
+> Task :app:mergeDebugAssets
+> Task :domain:stripDebugDebugSymbols NO-SOURCE
+> Task :domain:copyDebugJniLibsProjectAndLocalJars
+> Task :app:compressDebugAssets FROM-CACHE
+> Task :domain:extractDeepLinksForAarDebug FROM-CACHE
+> Task :app:desugarDebugFileDependencies FROM-CACHE
+> Task :domain:prepareDebugArtProfile
+> Task :domain:prepareLintJarForPublish
+> Task :core:database:checkDebugAarMetadata
+> Task :core:database:stripDebugDebugSymbols NO-SOURCE
+> Task :core:database:copyDebugJniLibsProjectAndLocalJars
+> Task :core:database:extractDeepLinksForAarDebug FROM-CACHE
+> Task :core:database:prepareDebugArtProfile
+> Task :core:database:prepareLintJarForPublish
+> Task :core:settings:checkDebugAarMetadata
+> Task :core:settings:stripDebugDebugSymbols NO-SOURCE
+> Task :core:settings:copyDebugJniLibsProjectAndLocalJars
+> Task :app:mergeExtDexDebug FROM-CACHE
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:compileDebugNavigationResources FROM-CACHE
+> Task :core:settings:extractDebugAnnotations
+> Task :core:settings:extractDeepLinksForAarDebug FROM-CACHE
+> Task :core:settings:prepareDebugArtProfile
+> Task :core:settings:prepareLintJarForPublish
+> Task :core:tdlib:checkDebugAarMetadata
+> Task :core:tdlib:stripDebugDebugSymbols NO-SOURCE
+> Task :core:tdlib:copyDebugJniLibsProjectAndLocalJars
+> Task :core:tdlib:extractDebugAnnotations FROM-CACHE
+> Task :core:tdlib:extractDeepLinksForAarDebug FROM-CACHE
+> Task :core:tdlib:mergeDebugGeneratedProguardFiles
+> Task :core:tdlib:mergeDebugConsumerProguardFiles
+> Task :core:tdlib:prepareDebugArtProfile
+> Task :core:tdlib:prepareLintJarForPublish
+> Task :app:mergeDebugResources FROM-CACHE
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug FROM-CACHE
+> Task :core:tdlib:mergeDebugJavaResource
+> Task :app:processDebugMainManifest FROM-CACHE
+> Task :core:tdlib:syncDebugLibJars FROM-CACHE
+> Task :app:processDebugManifest FROM-CACHE
+> Task :app:processDebugManifestForPackage FROM-CACHE
+> Task :core:tdlib:bundleDebugAar
+> Task :core:tdlib:assembleDebug
+> Task :core:tdlib:bundleLibRuntimeToJarDebug
+> Task :domain:preDebugUnitTestBuild UP-TO-DATE
+> Task :domain:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :domain:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :core:settings:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:settings:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :core:settings:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :core:tdlib:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:tdlib:generateDebugUnitTestStubRFile FROM-CACHE
+> Task :core:tdlib:compileDebugUnitTestKotlin NO-SOURCE
+> Task :core:tdlib:javaPreCompileDebugUnitTest FROM-CACHE
+> Task :app:processDebugResources FROM-CACHE
+> Task :core:tdlib:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:tdlib:processDebugUnitTestJavaRes NO-SOURCE
+> Task :core:tdlib:testDebugUnitTest NO-SOURCE
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:preDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileDebugUnitTest FROM-CACHE
+
+> Task :app:stripDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libdatastore_shared_counter.so, libtdjsonjava.so. Run with --info option to learn more.
+
+> Task :core:settings:compileDebugKotlin
+> Task :core:settings:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:settings:bundleLibCompileToJarDebug
+> Task :core:settings:processDebugJavaRes
+> Task :core:settings:mergeDebugGeneratedProguardFiles
+> Task :core:settings:bundleLibRuntimeToDirDebug
+> Task :core:settings:mergeDebugConsumerProguardFiles
+> Task :core:settings:mergeDebugJavaResource
+> Task :core:settings:bundleLibRuntimeToJarDebug
+> Task :core:settings:syncDebugLibJars
+> Task :core:settings:bundleDebugAar
+> Task :core:settings:assembleDebug
+> Task :core:settings:compileDebugUnitTestKotlin NO-SOURCE
+> Task :core:settings:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:settings:processDebugUnitTestJavaRes NO-SOURCE
+> Task :core:settings:testDebugUnitTest NO-SOURCE
+
+> Task :core:database:kspDebugKotlin
+line 2:36 mismatched input 'first' expecting {IDENTIFIER, STRING_LITERAL}
+e: [ksp] /home/runner/work/Tglmn/Tglmn/core/database/src/main/kotlin/dev/tgscope/core/database/Daos.kt:358: mismatched input 'first' expecting {IDENTIFIER, STRING_LITERAL}
+e: [ksp] /home/runner/work/Tglmn/Tglmn/core/database/src/main/kotlin/dev/tgscope/core/database/Daos.kt:358: Not sure how to convert the query result to this function's return type (kotlin.collections.List<dev.tgscope.core.database.UserFirst>).
+
+> Task :core:database:kspDebugKotlin FAILED
+> Task :core:database:copyRoomSchemas
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1792959492671.json
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':core:database:kspDebugKotlin' (registered by plugin 'com.android.internal.library').
+> A failure occurred while executing com.google.devtools.ksp.gradle.KspAAWorkerAction
+   > KSP failed with exit code: PROCESSING_ERROR
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 25s
+137 actionable tasks: 68 executed, 69 from cache
